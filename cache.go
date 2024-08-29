@@ -26,3 +26,8 @@ func (c *Cache) Get(key Key) Value {
 	fmt.Println("The value for the key " + string(key) + " was successfully retrieved.")
 	return value
 }
+
+func (c *Cache) Set(key Key, value Value) {
+	c.items[key] = value
+	fmt.Println("The key " + string(key) + " successfully recorded.")
+}
