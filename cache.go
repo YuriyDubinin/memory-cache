@@ -16,12 +16,13 @@ func New() *Cache {
 }
 
 func (c *Cache) Get(key Key) Value {
-	var value, isExist = c.items[key]
+	value, isExist := c.items[key]
 
 	if !isExist {
-		fmt.Println("Key not found")
+		fmt.Println("Key " + string(key) + " not found.")
 		return nil
 	}
 
+	fmt.Println("The value for the key " + string(key) + " was successfully retrieved.")
 	return value
 }
