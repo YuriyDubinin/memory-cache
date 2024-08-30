@@ -1,13 +1,13 @@
-# Memory Cache Package
+# Cache Package
 
 ## Overview
 
-The `cache` package is a simple and efficient Go library that provides basic operations for managing an in-memory cache. It allows you to store, retrieve, and delete key-value pairs with ease. This package can be useful for scenarios where quick data retrieval is required.
+The `cache` package is a simple and efficient Go library that provides basic operations for managing an in-memory cache. It allows you to store, retrieve, and delete key-value pairs with ease. This package is useful in scenarios where quick data retrieval is required.
 
 ## Features
 
 - **Custom Types:**
-  - `Key`: A type representing the key in the cache (string).
+  - `Key`: A type representing the key in the cache (`string`).
   - `Value`: An interface representing the value, allowing any data type.
 
 - **Cache Structure:**
@@ -17,9 +17,9 @@ The `cache` package is a simple and efficient Go library that provides basic ope
   - `New() *Cache`: Creates and returns a new instance of the cache.
 
 - **Methods:**
-  - `Get(key Key) Value`: Retrieves the value associated with a given key. If the key does not exist, it prints a message and returns `nil`.
+  - `Get(key Key) (Value, error)`: Retrieves the value associated with a given key. If the key does not exist, it returns an error indicating that the key was not found.
   - `Set(key Key, value Value)`: Adds or updates a key-value pair in the cache.
-  - `Delete(key Key)`: Deletes a key-value pair from the cache.
+  - `Delete(key Key) error`: Deletes a key-value pair from the cache. If the key does not exist, it returns an error indicating that the key was not found.
 
 ## Installation
 

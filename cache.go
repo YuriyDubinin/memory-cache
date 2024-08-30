@@ -1,40 +1,63 @@
 package cache
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"sync"
+)
 
 // Custom types
 type Key string
 type Value interface{}
 
+// Errors
+var errKeyNotFound = errors.New("key not found")
+
 type Cache struct {
-	items map[Key]Value
+	storage map[Key]Value
+	mutex   sync.RWMutex
 }
 
 // Cunstructor
 func New() *Cache {
 	return &Cache{
-		items: make(map[Key]Value),
+		storage: make(map[Key]Value),
 	}
 }
 
 // Get a value by a key
-func (c *Cache) Get(key Key) Value {
-	value, exist := c.items[key]
+func (c *Cache) Get(key Key) (Value, error) {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+
+	value, exist := c.storage[key]
 
 	if !exist {
-		fmt.Println("Key " + string(key) + " not found.")
-		return nil
+		return nil, fmt.Errorf("%w: %s", errKeyNotFound, key)
 	}
 
-	return value
+	return value, nil
 }
 
 // Adds or updates a key-value pair in cache
 func (c *Cache) Set(key Key, value Value) {
-	c.items[key] = value
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+	c.storage[key] = value
 }
 
 // Deletes a key-value pair from the cache
-func (c *Cache) Delete(key Key) {
-	delete(c.items, key)
+func (c *Cache) Delete(key Key) error {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+
+	_, exist := c.storage[key]
+
+	if !exist {
+		return fmt.Errorf("%w: %s", errKeyNotFound, key)
+	}
+
+	delete(c.storage, key)
+
+	return nil
 }
