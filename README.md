@@ -27,3 +27,12 @@ To use the `cache` package in your project, you can install it via `go get`:
 
 ```bash
 go get github.com/YuriyDubinin/memory-cache
+```
+
+## Testing
+
+To test the `cache` package, you can run the tests file with:
+
+```bash
+go test -v
+```

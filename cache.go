@@ -43,6 +43,7 @@ func (c *Cache) Get(key Key) (Value, error) {
 func (c *Cache) Set(key Key, value Value) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
+
 	c.storage[key] = value
 }
 
