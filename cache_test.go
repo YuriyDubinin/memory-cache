@@ -5,44 +5,64 @@ import (
 	"testing"
 )
 
-func TestCache(t *testing.T) {
+func TestGetMethod(t *testing.T) {
 	c := New()
 
-	// Test Set and Get
-	key1 := Key("key1")
-	value1 := "value1"
+	testKey := Key("userId")
+	testValue := Value(1)
+	fakeKey := Key("name")
 
-	c.Set(key1, value1)
+	c.Set(testKey, testValue)
 
-	got, err := c.Get(key1)
+	actualValue, err := c.Get(testKey)
 	if err != nil {
-		t.Fatalf("Get(%v) returned error: %v; want nil", key1, err)
+		t.Errorf("Get(%v) returned error: %v, want: %v", testKey, err, testValue)
 	}
-	if got != value1 {
-		t.Errorf("Get(%v) = %v; want %v", key1, got, value1)
+	if actualValue != testValue {
+		t.Errorf("Get(%v) returned: %v, want: %v", testKey, actualValue, testValue)
 	}
 
-	// Test Get with non-existent key
-	key2 := Key("key2")
-	_, err = c.Get(key2)
+	_, err = c.Get(fakeKey)
 	if !errors.Is(err, errKeyNotFound) {
-		t.Errorf("Get(%v) returned error: %v; want %v", key2, err, errKeyNotFound)
+		t.Errorf("Get(%v) returned: %v, want: %v", fakeKey, err, errKeyNotFound)
 	}
+}
 
-	// Test Delete
-	err = c.Delete(key1)
+func TestSetMethod(t *testing.T) {
+	c := New()
+
+	testKey := Key("userId")
+	testValue := Value(1)
+
+	c.Set(testKey, testValue)
+
+	_, err := c.Get(testKey)
 	if err != nil {
-		t.Fatalf("Delete(%v) returned error: %v; want nil", key1, err)
+		t.Errorf("Get(%v) returned error: %v, want: nil", testKey, err)
+	}
+}
+
+func TestDeleteMethod(t *testing.T) {
+	c := New()
+
+	testKey := Key("userId")
+	testValue := Value(1)
+	fakeKey := Key("name")
+
+	c.Set(testKey, testValue)
+
+	err := c.Delete(testKey)
+	if err != nil {
+		t.Errorf("Delete(%v) returned: %v, want: nill", testKey, err)
 	}
 
-	_, err = c.Get(key1)
+	_, err = c.Get(testKey)
 	if !errors.Is(err, errKeyNotFound) {
-		t.Errorf("Get(%v) after Delete returned error: %v; want %v", key1, err, errKeyNotFound)
+		t.Errorf("Get(%v) after Delete(%v) returned: %v, wait: %v", testKey, testKey, err, errKeyNotFound)
 	}
 
-	// Test Delete with non-existent key
-	err = c.Delete(key2)
+	err = c.Delete(fakeKey)
 	if !errors.Is(err, errKeyNotFound) {
-		t.Errorf("Delete(%v) returned error: %v; want %v", key2, err, errKeyNotFound)
+		t.Errorf("Delete(%v) returned: %v, wait: %v", fakeKey, err, errKeyNotFound)
 	}
 }
