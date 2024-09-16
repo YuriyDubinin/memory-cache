@@ -4,58 +4,63 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 )
 
-// Custom types
+var errKeyNotFound = errors.New("key not found")
+var errLifetimeExpired = errors.New("life time has expire, the key was deleted")
+
 type Key string
 type Value interface{}
 
-// Errors
-var errKeyNotFound = errors.New("key not found")
-
+type CacheItem struct {
+	value          Value
+	expirationTime time.Time
+}
 type Cache struct {
-	storage map[Key]Value
+	storage map[Key]CacheItem
 	mutex   sync.RWMutex
 }
 
-// Cunstructor
 func New() *Cache {
 	return &Cache{
-		storage: make(map[Key]Value),
+		storage: make(map[Key]CacheItem),
 	}
 }
 
-// Get a value by a key
 func (c *Cache) Get(key Key) (Value, error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 
-	value, exist := c.storage[key]
+	currentTime := time.Now()
 
+	value, exist := c.storage[key]
 	if !exist {
-		return nil, fmt.Errorf("%w: %s", errKeyNotFound, key)
+		return nil, fmt.Errorf("%w: %v", errKeyNotFound, key)
+	}
+	if currentTime.After(c.storage[key].expirationTime) {
+		delete(c.storage, key)
+		return nil, fmt.Errorf("%w", errLifetimeExpired)
 	}
 
 	return value, nil
 }
 
-// Adds or updates a key-value pair in cache
-func (c *Cache) Set(key Key, value Value) {
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
+func (c *Cache) Set(key Key, value Value, lifetime time.Duration) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
-	c.storage[key] = value
+	expirationTime := time.Now().Add(time.Second * lifetime)
+	c.storage[key] = CacheItem{value: value, expirationTime: expirationTime}
 }
 
-// Deletes a key-value pair from the cache
 func (c *Cache) Delete(key Key) error {
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
 	_, exist := c.storage[key]
-
 	if !exist {
-		return fmt.Errorf("%w: %s", errKeyNotFound, key)
+		return fmt.Errorf("%w: %v", errKeyNotFound, key)
 	}
 
 	delete(c.storage, key)
