@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `cache` package is a simple and efficient Go library that provides basic operations for managing an in-memory cache. It allows you to store, retrieve, and delete key-value pairs with ease. This package is useful in scenarios where quick data retrieval is required.
+The `cache` package is a simple and efficient Go library for managing an in-memory cache. It allows you to store, retrieve, and delete key-value pairs, as well as automatically clean up expired entries. This package is useful in scenarios where quick data retrieval and controlled data expiration are required.
 
 ## Features
 
@@ -18,8 +18,14 @@ The `cache` package is a simple and efficient Go library that provides basic ope
 
 - **Methods:**
   - `Get(key Key) (Value, error)`: Retrieves the value associated with a given key. If the key does not exist, it returns an error indicating that the key was not found.
-  - `Set(key Key, value Value)`: Adds or updates a key-value pair in the cache.
+  - `Set(key Key, value Value, lifetime time.Duration)`: Adds or updates a key-value pair in the cache.
   - `Delete(key Key) error`: Deletes a key-value pair from the cache. If the key does not exist, it returns an error indicating that the key was not found.
+  - `Automatic Data Expiration`: Entries with expired lifetimes are automatically cleared from the cache.
+
+- **Automatic Clearing of Outdated Data:**
+  - The cache runs a background goroutine that periodically checks and removes expired entries. The interval for checking is set to 1 second by default.
+  - `Stop Mechanism`: The cache has a mechanism to stop the automatic clearing process when necessary, by sending a signal through a channel.
+
 
 ## Installation
 
